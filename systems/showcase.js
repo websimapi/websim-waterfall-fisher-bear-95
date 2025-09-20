@@ -208,7 +208,7 @@ export function walkInShowcaseBear(fromRight) {
 
 export function waddleOutShowcaseBear(toRight = true, done) {
     if (!showcaseBear) return done?.();
-    const baseY = 4.65, targetX = toRight ? 12 : -12, faceY = toRight ? -Math.PI / 2 : Math.PI / 2;
+    const baseY = 4.65, targetX = toRight ? 12 : -12, faceY = toRight ? Math.PI / 2 : -Math.PI / 2;
     new TWEEN.Tween(showcaseBear.rotation).to({ y: faceY }, 600).easing(TWEEN.Easing.Cubic.InOut)
       .onComplete(() => {
         const startX = showcaseBear.position.x;
