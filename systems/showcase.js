@@ -206,6 +206,19 @@ export function walkInShowcaseBear(fromRight) {
     }
 }
 
+export function waddleOutShowcaseBear(toRight = true, done) {
+    if (!showcaseBear) return done?.();
+    const baseY = 4.65, targetX = toRight ? 12 : -12, faceY = toRight ? -Math.PI / 2 : Math.PI / 2;
+    new TWEEN.Tween(showcaseBear.rotation).to({ y: faceY }, 600).easing(TWEEN.Easing.Cubic.InOut)
+      .onComplete(() => {
+        const startX = showcaseBear.position.x;
+        new TWEEN.Tween(showcaseBear.position).to({ x: targetX }, 1400).easing(TWEEN.Easing.Quadratic.In)
+          .onUpdate(() => { const t = (showcaseBear.position.x - startX) / (targetX - startX); const ph = t * Math.PI * 6; showcaseBear.rotation.z = Math.sin(ph) * 0.18 * (toRight ? -1 : 1); showcaseBear.position.y = baseY + Math.abs(Math.sin(ph)) * 0.12; })
+          .onComplete(() => { showcaseBear.rotation.z = 0; showcaseBear.position.y = baseY; try { scene.remove(showcaseBear); } catch {} showcaseBear = null; done?.(); })
+          .start();
+      }).start();
+}
+
 export function swapShowcaseToCurrentSelection() {
     const progress = getPlayerProgress();
     const newBearType = progress.selectedBear;
@@ -228,13 +241,8 @@ export function swapShowcaseToCurrentSelection() {
     }
     // bear changed -> animate old off, spawn new and walk in
     if (showcaseBear) {
-        const leaveToRight = !(showcaseBear.userData?.fromRight); // opposite of how it came in
-        const baseY = 4.65; const targetX = leaveToRight ? 12 : -12;
-        const tw = new TWEEN.Tween(showcaseBear.position).to({ x: targetX }, 900).easing(TWEEN.Easing.Quadratic.In)
-          .onUpdate(()=>{ const ph = performance.now()/200; showcaseBear.rotation.z = Math.sin(ph)*0.12*(leaveToRight?-1:1); showcaseBear.position.y = baseY + Math.abs(Math.sin(ph))*0.08; })
-          .onComplete(()=>{ try { scene.remove(showcaseBear); } catch {} showcaseBear = null; });
-        tw.start();
-        setTimeout(()=>{ createOrUpdateShowcase(); walkInShowcaseBear(leaveToRight); }, 920);
+        const leaveToRight = !(showcaseBear.userData?.fromRight);
+        waddleOutShowcaseBear(leaveToRight, () => { createOrUpdateShowcase(); walkInShowcaseBear(leaveToRight); });
     } else {
         createOrUpdateShowcase();
         walkInShowcaseBear();
