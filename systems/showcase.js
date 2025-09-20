@@ -242,7 +242,7 @@ export function swapShowcaseToCurrentSelection() {
     // bear changed -> animate old off, spawn new and walk in
     if (showcaseBear) {
         const leaveToRight = !(showcaseBear.userData?.fromRight);
-        waddleOutShowcaseBear(leaveToRight, () => { createOrUpdateShowcase(); walkInShowcaseBear(leaveToRight); });
+        waddleOutShowcaseBear(leaveToRight, () => { createOrUpdateShowcase(); walkInShowcaseBear(!leaveToRight); });
     } else {
         createOrUpdateShowcase();
         walkInShowcaseBear();
