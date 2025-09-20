@@ -209,7 +209,13 @@ export function walkInShowcaseBear(fromRight) {
 export function waddleOutShowcaseBear(toRight = true, done) {
     if (!showcaseBear) return done?.();
     const baseY = 4.65, targetX = toRight ? 12 : -12, faceY = toRight ? Math.PI / 2 : -Math.PI / 2;
-    new TWEEN.Tween(showcaseBear.rotation).to({ y: faceY }, 600).easing(TWEEN.Easing.Cubic.InOut)
+    const durTurn = 800, easeRot = TWEEN.Easing?.Cubic?.InOut || ((k)=>k), easeWob = TWEEN.Easing?.Sine?.InOut || ((k)=>k);
+    const wob = { t: 0 };
+    new TWEEN.Tween(wob).to({ t: 1 }, durTurn).easing(easeWob)
+      .onUpdate(()=>{ const ph = wob.t * Math.PI * 4; showcaseBear.rotation.z = Math.sin(ph)*0.12; showcaseBear.position.y = baseY + Math.abs(Math.sin(ph))*0.08; })
+      .onComplete(()=>{ showcaseBear.rotation.z = 0; showcaseBear.position.y = baseY; })
+      .start();
+    new TWEEN.Tween(showcaseBear.rotation).to({ y: faceY }, durTurn).easing(easeRot)
       .onComplete(() => {
         const startX = showcaseBear.position.x;
         new TWEEN.Tween(showcaseBear.position).to({ x: targetX }, 1400).easing(TWEEN.Easing.Quadratic.In)
@@ -242,7 +248,7 @@ export function swapShowcaseToCurrentSelection() {
     // bear changed -> animate old off, spawn new and walk in
     if (showcaseBear) {
         const leaveToRight = !(showcaseBear.userData?.fromRight);
-        waddleOutShowcaseBear(leaveToRight, () => { createOrUpdateShowcase(); walkInShowcaseBear(!leaveToRight); });
+        waddleOutShowcaseBear(leaveToRight, () => { createOrUpdateShowcase(); walkInShowcaseBear(leaveToRight); });
     } else {
         createOrUpdateShowcase();
         walkInShowcaseBear();
